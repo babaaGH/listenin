@@ -23,6 +23,20 @@ A premium iOS-style meeting intelligence PWA built with React 19, TypeScript, an
   - Squircle rounded corners (20px)
 - ✅ **PWA Ready** - Installable on iOS devices
 
+### Phase 2 (Completed)
+- ✅ **Real-Time Transcription** - Powered by Gemini 2.0 Flash
+- ✅ **Audio Streaming** - PCM 16kHz mono chunks to Gemini API
+- ✅ **Live Transcript Display**:
+  - Auto-scroll to bottom with manual override
+  - Timestamp markers every 30 seconds
+  - Fade mask at bottom (OLED aesthetic)
+  - Smooth animations for new text
+- ✅ **Split-Panel UI** - Recording controls on left, transcript on right
+- ✅ **Connection Management**:
+  - Real-time connection status indicator
+  - Graceful error handling with helpful messages
+  - Automatic API setup instructions
+
 ## Design System
 
 ### Colors
@@ -64,10 +78,18 @@ A premium iOS-style meeting intelligence PWA built with React 19, TypeScript, an
    npm install
    ```
 
-2. **Set up environment variables** (for future Gemini integration)
+2. **Set up environment variables** (REQUIRED for Phase 2 transcription)
    ```bash
    echo "VITE_GEMINI_API_KEY=your_api_key_here" > .env
    ```
+
+   Get your free API key from: https://makersuite.google.com/app/apikey
+
+   **For Vercel deployment:**
+   - Go to your Vercel project dashboard
+   - Settings → Environment Variables
+   - Add: `VITE_GEMINI_API_KEY` = `your_api_key`
+   - Redeploy the app
 
 3. **Run development server**
    ```bash
@@ -138,14 +160,16 @@ listenin/
 
 **Note**: Microphone access requires HTTPS or localhost.
 
-## Upcoming Features (Phase 2)
+## Upcoming Features (Phase 3)
 
-- 🔄 Gemini API integration for transcription
-- 🔄 Real-time transcription display
-- 🔄 Meeting summaries and key points
-- 🔄 Export options (PDF, text)
-- 🔄 Recording history with IndexedDB
-- 🔄 Speaker diarization
+- 🔄 AI Meeting Summaries - Auto-generate summaries from transcripts
+- 🔄 Action Items Extraction - Identify and list action items
+- 🔄 Key Points Highlights - Extract important moments
+- 🔄 Export Options - PDF, text, and audio download
+- 🔄 Recording History - IndexedDB for local storage
+- 🔄 Speaker Diarization - Identify different speakers
+- 🔄 Multi-language Support - Transcribe in multiple languages
+- 🔄 Custom Prompts - User-defined AI analysis
 
 ## Development
 
@@ -179,10 +203,13 @@ listenin/
 ## Usage
 
 1. **Grant Microphone Permission**: On first launch, grant microphone access
-2. **Start Recording**: Tap "Start Recording" to begin capturing audio
-3. **Monitor Recording**: Watch the pulsing orb and waveform for visual feedback
-4. **Pause/Resume**: Control your recording with pause and resume buttons
-5. **Finish**: Tap "Finish" to stop and save the recording
+2. **Check Gemini Connection**: Green indicator shows AI is ready for transcription
+3. **Start Recording**: Tap "Start Recording" to begin capturing audio
+4. **Watch Real-Time Transcription**: See your words appear live on the right panel
+5. **Monitor Recording**: Watch the pulsing orb and waveform for visual feedback
+6. **Pause/Resume**: Control your recording with pause and resume buttons
+7. **Review Transcript**: Scroll through with timestamp markers every 30 seconds
+8. **Finish**: Tap "Finish" to stop and save both audio and transcript
 
 ## Contributing
 
