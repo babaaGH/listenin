@@ -23,6 +23,7 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
+// Transcription API endpoint - handles audio streaming to Gemini
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse
