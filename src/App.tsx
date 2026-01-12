@@ -1,19 +1,26 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAudioRecorder } from './hooks/useAudioRecorder';
 import { useGeminiStreaming } from './hooks/useGeminiStreaming';
+import { useGeminiSummary } from './hooks/useGeminiSummary';
 import { PermissionScreen } from './components/PermissionScreen';
 import { RecordingOrb } from './components/RecordingOrb';
 import { Timer } from './components/Timer';
 import { Waveform } from './components/Waveform';
 import { RecordingControls } from './components/RecordingControls';
 import { TranscriptDisplay } from './components/TranscriptDisplay';
+import { SummaryDisplay } from './components/SummaryDisplay';
+import { SummaryGenerating } from './components/SummaryGenerating';
 import { ConnectionStatus } from './components/ConnectionStatus';
+
+type ViewMode = 'transcript' | 'summary';
 
 function App() {
   const [audioState, audioControls] = useAudioRecorder();
   const [geminiState, geminiControls] = useGeminiStreaming();
+  const summaryState = useGeminiSummary();
   const [savedAudioBlob, setSavedAudioBlob] = useState<Blob | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('transcript');
 
   // Connect to Gemini on mount
   useEffect(() => {
@@ -30,6 +37,8 @@ function App() {
 
   const handleStart = async () => {
     geminiControls.clearTranscript();
+    summaryState.resetState();
+    setViewMode('transcript');
     await audioControls.startRecording(handleAudioData);
     setShowSuccess(false);
   };
@@ -39,6 +48,15 @@ function App() {
     if (blob) {
       setSavedAudioBlob(blob);
       setShowSuccess(true);
+
+      // Auto-generate summary after recording stops
+      if (geminiState.fullTranscript && geminiState.fullTranscript.length > 50) {
+        setViewMode('summary');
+        await summaryState.generateSummary(
+          geminiState.fullTranscript,
+          audioState.duration
+        );
+      }
 
       setTimeout(() => {
         setShowSuccess(false);
@@ -83,7 +101,7 @@ function App() {
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
                   </svg>
-                  <span className="font-medium">Recording saved successfully</span>
+                  <span className="font-medium">Recording saved! Generating AI summary...</span>
                 </div>
               </div>
             )}
@@ -91,7 +109,7 @@ function App() {
             {/* Connection Status */}
             <ConnectionStatus
               isConnected={geminiState.isConnected}
-              error={geminiState.error}
+              error={geminiState.error || summaryState.error}
             />
 
             {/* Timer */}
@@ -141,14 +159,39 @@ function App() {
           </div>
         </div>
 
-        {/* Right Side - Transcript Display */}
+        {/* Right Side - Transcript/Summary Display */}
         <div className="flex-1 max-w-2xl">
           <div className="glass rounded-squircle h-full min-h-[600px] flex flex-col">
-            {/* Transcript Header */}
+            {/* View Toggle Header */}
             <div className="px-6 py-4 border-b border-white/10">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Live Transcript</h2>
-                {geminiState.transcriptChunks.length > 0 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setViewMode('transcript')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium smooth-transition ${
+                      viewMode === 'transcript'
+                        ? 'bg-apple-blue text-white'
+                        : 'text-white/60 hover:bg-white/10'
+                    }`}
+                  >
+                    Live Transcript
+                  </button>
+                  <button
+                    onClick={() => setViewMode('summary')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium smooth-transition ${
+                      viewMode === 'summary'
+                        ? 'bg-apple-blue text-white'
+                        : 'text-white/60 hover:bg-white/10'
+                    } ${!summaryState.summary && !summaryState.isGenerating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={!summaryState.summary && !summaryState.isGenerating}
+                  >
+                    AI Summary
+                    {summaryState.isGenerating && (
+                      <span className="ml-2 inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    )}
+                  </button>
+                </div>
+                {viewMode === 'transcript' && geminiState.transcriptChunks.length > 0 && (
                   <div className="text-xs text-white/40">
                     {geminiState.transcriptChunks.length} chunks
                   </div>
@@ -156,12 +199,36 @@ function App() {
               </div>
             </div>
 
-            {/* Transcript Content */}
+            {/* Content Area */}
             <div className="flex-1 relative">
-              <TranscriptDisplay
-                chunks={geminiState.transcriptChunks}
-                isStreaming={geminiState.isStreaming}
-              />
+              {viewMode === 'transcript' && (
+                <TranscriptDisplay
+                  chunks={geminiState.transcriptChunks}
+                  isStreaming={geminiState.isStreaming}
+                />
+              )}
+
+              {viewMode === 'summary' && (
+                <>
+                  {summaryState.isGenerating && (
+                    <SummaryGenerating progress={summaryState.progress} />
+                  )}
+                  {!summaryState.isGenerating && summaryState.summary && (
+                    <SummaryDisplay summary={summaryState.summary} />
+                  )}
+                  {!summaryState.isGenerating && !summaryState.summary && (
+                    <div className="h-full flex items-center justify-center text-white/40 text-sm">
+                      <div className="text-center space-y-2">
+                        <svg className="w-12 h-12 mx-auto opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p>No summary available</p>
+                        <p className="text-xs">Record a meeting to generate an AI summary</p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
