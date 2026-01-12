@@ -47,11 +47,17 @@ A premium iOS-style meeting intelligence PWA built with React 19, TypeScript, an
   - **Action Items**: Tasks with assignee, priority, due dates
   - **Participants**: Auto-identified from transcript
   - **Metadata**: Duration, timestamp, full transcript
+- ✅ **Meeting Detail Screen** with 4 interactive tabs:
+  - **Summary Tab**: Executive overview, participants list, chapters timeline
+  - **Highlights Tab**: Color-coded quotes by importance (high/medium/low), tap to expand context
+  - **Action Items Tab**: Checkable tasks grouped by priority, swipe-to-delete, assignee badges
+  - **Intel Chat Tab**: Interactive Q&A with Gemini grounded on meeting transcript
 - ✅ **Interactive UI**:
-  - View toggle: Switch between Live Transcript and AI Summary
+  - Full-screen detail view after recording completes
   - Checkable action items (mark as complete)
   - Priority badges (high/medium/low colors)
   - Progress indicator during generation
+  - Swipe-to-delete action items (mobile)
 - ✅ **LocalStorage** - Saves last 50 summaries for offline access
 
 ## Design System
@@ -238,12 +244,15 @@ listenin/
 7. **Review Transcript**: Scroll through with timestamp markers every 30 seconds
 8. **Finish Recording**: Click "Finish" to stop recording
 9. **AI Summary Generation** (New! ✨):
-   - Automatically switches to "AI Summary" tab
-   - Generates structured summary within 30 seconds
-   - View executive overview, chapters, highlights, action items
-   - Check off completed action items
+   - Automatically generates structured summary within 30 seconds
+   - Transitions to full-screen Meeting Detail view
    - All summaries saved to localStorage
-10. **Toggle Views**: Switch between "Live Transcript" and "AI Summary" tabs anytime
+10. **Explore Meeting Detail** (New! ✨):
+   - **Summary Tab**: View overview, participants, and chapter timeline
+   - **Highlights Tab**: Browse color-coded key moments (tap to expand)
+   - **Action Items Tab**: Check off tasks, see priority levels, swipe to delete
+   - **Intel Chat Tab**: Ask questions about the meeting with AI assistance
+11. **Back to Recording**: Click the back button to start a new recording
 
 ## Contributing
 

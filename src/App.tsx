@@ -11,8 +11,11 @@ import { TranscriptDisplay } from './components/TranscriptDisplay';
 import { SummaryDisplay } from './components/SummaryDisplay';
 import { SummaryGenerating } from './components/SummaryGenerating';
 import { ConnectionStatus } from './components/ConnectionStatus';
+import { MeetingDetail } from './components/MeetingDetail/MeetingDetail';
+import type { MeetingSummary } from './types/meeting';
 
 type ViewMode = 'transcript' | 'summary';
+type AppScreen = 'recording' | 'detail';
 
 function App() {
   const [audioState, audioControls] = useAudioRecorder();
@@ -21,6 +24,8 @@ function App() {
   const [savedAudioBlob, setSavedAudioBlob] = useState<Blob | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('transcript');
+  const [appScreen, setAppScreen] = useState<AppScreen>('recording');
+  const [currentSummary, setCurrentSummary] = useState<MeetingSummary | null>(null);
 
   // Connect to Gemini on mount
   useEffect(() => {
@@ -39,6 +44,8 @@ function App() {
     geminiControls.clearTranscript();
     summaryState.resetState();
     setViewMode('transcript');
+    setAppScreen('recording');
+    setCurrentSummary(null);
     await audioControls.startRecording(handleAudioData);
     setShowSuccess(false);
   };
@@ -56,6 +63,12 @@ function App() {
           geminiState.fullTranscript,
           audioState.duration
         );
+
+        // Switch to detail screen when summary is ready
+        if (summaryState.summary) {
+          setCurrentSummary(summaryState.summary);
+          setAppScreen('detail');
+        }
       }
 
       setTimeout(() => {
@@ -64,11 +77,39 @@ function App() {
     }
   };
 
+  const handleBackToRecording = () => {
+    setAppScreen('recording');
+    setViewMode('transcript');
+  };
+
+  const handleSummaryUpdate = (updatedSummary: MeetingSummary) => {
+    setCurrentSummary(updatedSummary);
+  };
+
+  // Watch for summary completion and switch to detail screen
+  useEffect(() => {
+    if (summaryState.summary && !summaryState.isGenerating) {
+      setCurrentSummary(summaryState.summary);
+      setAppScreen('detail');
+    }
+  }, [summaryState.summary, summaryState.isGenerating]);
+
   if (audioState.hasPermission === false || audioState.hasPermission === null) {
     return (
       <PermissionScreen
         onRequestPermission={audioControls.requestPermission}
         error={audioState.error}
+      />
+    );
+  }
+
+  // Show detail screen when summary is ready
+  if (appScreen === 'detail' && currentSummary) {
+    return (
+      <MeetingDetail
+        summary={currentSummary}
+        onClose={handleBackToRecording}
+        onSummaryUpdate={handleSummaryUpdate}
       />
     );
   }
