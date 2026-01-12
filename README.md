@@ -37,6 +37,23 @@ A premium iOS-style meeting intelligence PWA built with React 19, TypeScript, an
   - Graceful error handling with helpful messages
   - Automatic API setup instructions
 
+### Phase 3 (Completed) 🆕
+- ✅ **AI Meeting Summaries** - Structured analysis with Gemini 2.0 Flash
+- ✅ **Auto-Generation** - Triggers within 30 seconds after recording ends
+- ✅ **Structured Output** (JSON Schema):
+  - **Executive Overview**: 2-3 sentence summary
+  - **Chapters**: Logical segments with timestamps
+  - **Key Highlights**: Important quotes with importance levels
+  - **Action Items**: Tasks with assignee, priority, due dates
+  - **Participants**: Auto-identified from transcript
+  - **Metadata**: Duration, timestamp, full transcript
+- ✅ **Interactive UI**:
+  - View toggle: Switch between Live Transcript and AI Summary
+  - Checkable action items (mark as complete)
+  - Priority badges (high/medium/low colors)
+  - Progress indicator during generation
+- ✅ **LocalStorage** - Saves last 50 summaries for offline access
+
 ## Design System
 
 ### Colors
@@ -170,16 +187,16 @@ listenin/
 
 **Note**: Microphone access requires HTTPS or localhost.
 
-## Upcoming Features (Phase 3)
+## Upcoming Features (Phase 4)
 
-- 🔄 AI Meeting Summaries - Auto-generate summaries from transcripts
-- 🔄 Action Items Extraction - Identify and list action items
-- 🔄 Key Points Highlights - Extract important moments
-- 🔄 Export Options - PDF, text, and audio download
-- 🔄 Recording History - IndexedDB for local storage
-- 🔄 Speaker Diarization - Identify different speakers
+- 🔄 Export Options - Download summaries as PDF, text, JSON
+- 🔄 Recording History View - Browse all past summaries
+- 🔄 Speaker Diarization - Identify and label different speakers
 - 🔄 Multi-language Support - Transcribe in multiple languages
-- 🔄 Custom Prompts - User-defined AI analysis
+- 🔄 Custom AI Prompts - User-defined analysis questions
+- 🔄 Email Integration - Send summaries via email
+- 🔄 Calendar Integration - Create events from action items
+- 🔄 Search & Filter - Find summaries by keyword, date, participants
 
 ## Development
 
@@ -214,12 +231,19 @@ listenin/
 
 1. **Grant Microphone Permission**: On first launch, grant microphone access
 2. **Check Gemini Connection**: Green indicator shows AI is ready for transcription
-3. **Start Recording**: Tap "Start Recording" to begin capturing audio
-4. **Watch Real-Time Transcription**: See your words appear live on the right panel
+3. **Start Recording**: Click "Start Recording" to begin capturing audio
+4. **Watch Real-Time Transcription**: See your words appear live in the "Live Transcript" tab
 5. **Monitor Recording**: Watch the pulsing orb and waveform for visual feedback
 6. **Pause/Resume**: Control your recording with pause and resume buttons
 7. **Review Transcript**: Scroll through with timestamp markers every 30 seconds
-8. **Finish**: Tap "Finish" to stop and save both audio and transcript
+8. **Finish Recording**: Click "Finish" to stop recording
+9. **AI Summary Generation** (New! ✨):
+   - Automatically switches to "AI Summary" tab
+   - Generates structured summary within 30 seconds
+   - View executive overview, chapters, highlights, action items
+   - Check off completed action items
+   - All summaries saved to localStorage
+10. **Toggle Views**: Switch between "Live Transcript" and "AI Summary" tabs anytime
 
 ## Contributing
 
