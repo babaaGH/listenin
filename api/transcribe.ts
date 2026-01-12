@@ -78,8 +78,18 @@ export default async function handler(
 
     const { audioData, isFirst } = req.body;
 
-    if (!audioData || typeof audioData !== 'string') {
-      return res.status(400).json({ error: 'Invalid audio data' });
+    // Validate audio data type
+    if (typeof audioData !== 'string') {
+      return res.status(400).json({ error: 'Invalid audio data format' });
+    }
+
+    // Handle connection test (empty audio data)
+    if (!audioData || audioData.length === 0) {
+      return res.status(200).json({
+        success: true,
+        transcript: '',
+        message: 'Connection test successful'
+      });
     }
 
     // Initialize Gemini
