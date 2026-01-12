@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface TranscriptChunk {
   text: string;
@@ -31,29 +30,27 @@ export const useGeminiStreaming = (): [GeminiStreamingState, GeminiStreamingCont
     error: null,
   });
 
-  const genAIRef = useRef<GoogleGenerativeAI | null>(null);
-  const modelRef = useRef<any>(null);
-  const chatRef = useRef<any>(null);
+  const isFirstChunkRef = useRef<boolean>(true);
   const startTimeRef = useRef<number>(0);
 
   const connect = useCallback(async (): Promise<boolean> => {
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-      if (!apiKey) {
-        setState(prev => ({
-          ...prev,
-          error: 'Gemini API key not found. Please add VITE_GEMINI_API_KEY to your environment variables.'
-        }));
-        return false;
-      }
-
-      genAIRef.current = new GoogleGenerativeAI(apiKey);
-
-      // Use Gemini 2.0 Flash for audio streaming
-      modelRef.current = genAIRef.current.getGenerativeModel({
-        model: 'gemini-2.0-flash-exp',
+      // Test connection to backend proxy
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          audioData: '', // Empty test request
+          isFirst: true
+        }),
       });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to connect to transcription service');
+      }
 
       startTimeRef.current = Date.now();
 
@@ -65,7 +62,16 @@ export const useGeminiStreaming = (): [GeminiStreamingState, GeminiStreamingCont
 
       return true;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to connect to Gemini API';
+      let errorMessage = 'Failed to connect to transcription service';
+
+      if (err instanceof Error) {
+        if (err.message.includes('API key')) {
+          errorMessage = 'Server configuration error: API key not configured. Please contact the administrator.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+
       setState(prev => ({
         ...prev,
         error: errorMessage,
@@ -76,9 +82,7 @@ export const useGeminiStreaming = (): [GeminiStreamingState, GeminiStreamingCont
   }, []);
 
   const disconnect = useCallback(() => {
-    chatRef.current = null;
-    modelRef.current = null;
-    genAIRef.current = null;
+    isFirstChunkRef.current = true;
 
     setState(prev => ({
       ...prev,
@@ -88,7 +92,7 @@ export const useGeminiStreaming = (): [GeminiStreamingState, GeminiStreamingCont
   }, []);
 
   const sendAudioChunk = useCallback(async (audioData: Float32Array) => {
-    if (!modelRef.current || !state.isConnected) {
+    if (!state.isConnected) {
       return;
     }
 
@@ -105,57 +109,56 @@ export const useGeminiStreaming = (): [GeminiStreamingState, GeminiStreamingCont
         String.fromCharCode(...new Uint8Array(pcmData.buffer))
       );
 
-      const prompt = chatRef.current
-        ? 'Continue transcribing:'
-        : 'Transcribe this audio in real-time. Only output the spoken words, no formatting or explanations:';
-
-      const result = await modelRef.current.generateContentStream([
-        {
-          inlineData: {
-            mimeType: 'audio/pcm',
-            data: base64Audio,
-          },
+      // Call backend proxy
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        { text: prompt },
-      ]);
+        body: JSON.stringify({
+          audioData: base64Audio,
+          isFirst: isFirstChunkRef.current
+        }),
+      });
 
-      let accumulatedText = '';
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || 'Transcription failed');
+      }
 
-      for await (const chunk of result.stream) {
-        const chunkText = chunk.text();
-        if (chunkText) {
-          accumulatedText += chunkText;
+      const data = await response.json();
+      const transcriptText = data.transcript || '';
 
-          const timestamp = Date.now() - startTimeRef.current;
-          const newChunk: TranscriptChunk = {
-            text: chunkText,
-            timestamp,
-            isFinal: false,
-          };
+      if (transcriptText) {
+        const timestamp = Date.now() - startTimeRef.current;
+        const newChunk: TranscriptChunk = {
+          text: transcriptText,
+          timestamp,
+          isFinal: true,
+        };
 
-          setState(prev => ({
-            ...prev,
-            transcriptChunks: [...prev.transcriptChunks, newChunk],
-            fullTranscript: prev.fullTranscript + chunkText,
-          }));
+        setState(prev => ({
+          ...prev,
+          transcriptChunks: [...prev.transcriptChunks, newChunk],
+          fullTranscript: prev.fullTranscript + transcriptText,
+        }));
+
+        isFirstChunkRef.current = false;
+      }
+
+    } catch (err) {
+      let errorMessage = 'Failed to process audio';
+
+      if (err instanceof Error) {
+        if (err.message.includes('quota')) {
+          errorMessage = 'API quota exceeded. Please try again later.';
+        } else if (err.message.includes('rate limit')) {
+          errorMessage = 'Rate limit exceeded. Please slow down.';
+        } else {
+          errorMessage = err.message;
         }
       }
 
-      // Mark the final chunk
-      if (accumulatedText) {
-        setState(prev => {
-          const chunks = [...prev.transcriptChunks];
-          if (chunks.length > 0) {
-            chunks[chunks.length - 1].isFinal = true;
-          }
-          return { ...prev, transcriptChunks: chunks };
-        });
-      }
-
-      chatRef.current = true; // Mark that we've started a session
-
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to process audio';
       setState(prev => ({
         ...prev,
         error: errorMessage,
@@ -172,6 +175,7 @@ export const useGeminiStreaming = (): [GeminiStreamingState, GeminiStreamingCont
       fullTranscript: '',
     }));
     startTimeRef.current = Date.now();
+    isFirstChunkRef.current = true;
   }, []);
 
   return [

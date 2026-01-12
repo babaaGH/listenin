@@ -19,13 +19,15 @@ export const ConnectionStatus: React.FC<ConnectionStatusProps> = ({
             <p className="text-xs text-red-300/80 leading-relaxed">{error}</p>
             {error.includes('API key') && (
               <div className="mt-3 text-xs text-white/60">
-                <p className="mb-2">To enable transcription:</p>
+                <p className="mb-2 font-semibold">Server Configuration Required:</p>
                 <ol className="list-decimal list-inside space-y-1 ml-2">
                   <li>Get your API key from <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-apple-blue hover:underline">Google AI Studio</a></li>
-                  <li>Add it to Vercel: Dashboard → Settings → Environment Variables</li>
-                  <li>Key: <code className="bg-white/10 px-1 py-0.5 rounded">VITE_GEMINI_API_KEY</code></li>
+                  <li>Add to Vercel: Dashboard → Settings → Environment Variables</li>
+                  <li>Key: <code className="bg-white/10 px-1 py-0.5 rounded">GEMINI_API_KEY</code> (no VITE_ prefix)</li>
+                  <li>Value: Your API key</li>
                   <li>Redeploy your app</li>
                 </ol>
+                <p className="mt-2 text-white/40">🔒 Secure: API key stays on the server, never exposed to browsers</p>
               </div>
             )}
           </div>

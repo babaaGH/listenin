@@ -61,8 +61,10 @@ A premium iOS-style meeting intelligence PWA built with React 19, TypeScript, an
 - **Frontend**: React 19 + TypeScript
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS with custom design system
-- **AI Integration**: @google/generative-ai (Gemini API)
+- **Backend**: Vercel Serverless Functions (secure API proxy)
+- **AI Integration**: Gemini 2.0 Flash via secure backend
 - **PWA**: vite-plugin-pwa with Workbox
+- **Security**: Server-side API key management, CORS, rate limiting
 
 ## Getting Started
 
@@ -79,17 +81,25 @@ A premium iOS-style meeting intelligence PWA built with React 19, TypeScript, an
    ```
 
 2. **Set up environment variables** (REQUIRED for Phase 2 transcription)
+
+   🔒 **Secure Setup**: API key is stored server-side only (NOT exposed to browser)
+
+   **For local development:**
    ```bash
-   echo "VITE_GEMINI_API_KEY=your_api_key_here" > .env
+   echo "GEMINI_API_KEY=your_api_key_here" > .env
    ```
 
-   Get your free API key from: https://makersuite.google.com/app/apikey
+   **For Vercel deployment (REQUIRED):**
+   1. Get your free API key from: https://makersuite.google.com/app/apikey
+   2. Go to your Vercel project dashboard
+   3. Navigate to: **Settings** → **Environment Variables**
+   4. Add new variable:
+      - **Name**: `GEMINI_API_KEY` (⚠️ NO `VITE_` prefix!)
+      - **Value**: Your API key
+      - **Environment**: All (Production, Preview, Development)
+   5. Click **Save** and redeploy
 
-   **For Vercel deployment:**
-   - Go to your Vercel project dashboard
-   - Settings → Environment Variables
-   - Add: `VITE_GEMINI_API_KEY` = `your_api_key`
-   - Redeploy the app
+   ✅ Your API key stays secure on the server and is never exposed to users
 
 3. **Run development server**
    ```bash
