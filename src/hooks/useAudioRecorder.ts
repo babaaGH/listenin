@@ -111,12 +111,39 @@ export const useAudioRecorder = (): [AudioRecorderState, AudioRecorderControls] 
         const processor = audioContext.createScriptProcessor(4096, 1, 1);
         processorRef.current = processor;
 
+        // Throttle audio sending - accumulate 3 seconds of audio before sending
+        let audioBuffer: Float32Array[] = [];
+        let lastSendTime = Date.now();
+        const SEND_INTERVAL = 3000; // Send every 3 seconds
+
         processor.onaudioprocess = (e) => {
           if (state.isPaused || !onAudioDataRef.current) return;
 
           const inputData = e.inputBuffer.getChannelData(0);
           const audioData = new Float32Array(inputData);
-          onAudioDataRef.current(audioData);
+
+          // Accumulate audio chunks
+          audioBuffer.push(audioData);
+
+          // Send accumulated audio every 3 seconds
+          const now = Date.now();
+          if (now - lastSendTime >= SEND_INTERVAL) {
+            // Concatenate all buffered audio
+            const totalLength = audioBuffer.reduce((sum, arr) => sum + arr.length, 0);
+            const combined = new Float32Array(totalLength);
+            let offset = 0;
+            for (const chunk of audioBuffer) {
+              combined.set(chunk, offset);
+              offset += chunk.length;
+            }
+
+            // Send combined audio
+            onAudioDataRef.current(combined);
+
+            // Reset buffer and timer
+            audioBuffer = [];
+            lastSendTime = now;
+          }
         };
 
         source.connect(processor);
