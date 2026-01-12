@@ -10,7 +10,7 @@ export interface AudioRecorderState {
 }
 
 export interface AudioRecorderControls {
-  startRecording: () => Promise<void>;
+  startRecording: (onAudioData?: (data: Float32Array) => void) => Promise<void>;
   stopRecording: () => Promise<Blob | null>;
   pauseRecording: () => void;
   resumeRecording: () => void;
@@ -32,6 +32,8 @@ export const useAudioRecorder = (): [AudioRecorderState, AudioRecorderControls] 
   const streamRef = useRef<MediaStream | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const processorRef = useRef<ScriptProcessorNode | null>(null);
+  const onAudioDataRef = useRef<((data: Float32Array) => void) | null>(null);
   const timerRef = useRef<number | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
@@ -79,7 +81,7 @@ export const useAudioRecorder = (): [AudioRecorderState, AudioRecorderControls] 
     }
   }, [state.isRecording, state.isPaused]);
 
-  const startRecording = useCallback(async () => {
+  const startRecording = useCallback(async (onAudioData?: (data: Float32Array) => void) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -92,6 +94,7 @@ export const useAudioRecorder = (): [AudioRecorderState, AudioRecorderControls] 
 
       streamRef.current = stream;
       audioChunksRef.current = [];
+      onAudioDataRef.current = onAudioData || null;
 
       const audioContext = new AudioContext({ sampleRate: 16000 });
       audioContextRef.current = audioContext;
@@ -102,6 +105,23 @@ export const useAudioRecorder = (): [AudioRecorderState, AudioRecorderControls] 
 
       const source = audioContext.createMediaStreamSource(stream);
       source.connect(analyser);
+
+      // Add ScriptProcessorNode for real-time audio data streaming
+      if (onAudioData) {
+        const processor = audioContext.createScriptProcessor(4096, 1, 1);
+        processorRef.current = processor;
+
+        processor.onaudioprocess = (e) => {
+          if (state.isPaused || !onAudioDataRef.current) return;
+
+          const inputData = e.inputBuffer.getChannelData(0);
+          const audioData = new Float32Array(inputData);
+          onAudioDataRef.current(audioData);
+        };
+
+        source.connect(processor);
+        processor.connect(audioContext.destination);
+      }
 
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: 'audio/webm;codecs=opus'
@@ -136,7 +156,7 @@ export const useAudioRecorder = (): [AudioRecorderState, AudioRecorderControls] 
       const errorMessage = err instanceof Error ? err.message : 'Failed to start recording';
       setState(prev => ({ ...prev, error: errorMessage }));
     }
-  }, [updateAudioLevel]);
+  }, [updateAudioLevel, state.isPaused]);
 
   const stopRecording = useCallback(async (): Promise<Blob | null> => {
     return new Promise((resolve) => {
@@ -156,6 +176,11 @@ export const useAudioRecorder = (): [AudioRecorderState, AudioRecorderControls] 
         streamRef.current.getTracks().forEach(track => track.stop());
       }
 
+      if (processorRef.current) {
+        processorRef.current.disconnect();
+        processorRef.current = null;
+      }
+
       if (audioContextRef.current) {
         audioContextRef.current.close();
       }
@@ -167,6 +192,8 @@ export const useAudioRecorder = (): [AudioRecorderState, AudioRecorderControls] 
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
+
+      onAudioDataRef.current = null;
 
       setState(prev => ({
         ...prev,
@@ -204,6 +231,9 @@ export const useAudioRecorder = (): [AudioRecorderState, AudioRecorderControls] 
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      if (processorRef.current) {
+        processorRef.current.disconnect();
       }
       if (audioContextRef.current) {
         audioContextRef.current.close();
