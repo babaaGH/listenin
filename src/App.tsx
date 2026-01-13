@@ -13,6 +13,8 @@ import { SummaryGenerating } from './components/SummaryGenerating';
 import { ConnectionStatus } from './components/ConnectionStatus';
 import { MeetingDetail } from './components/MeetingDetail/MeetingDetail';
 import { Dashboard } from './components/Dashboard/Dashboard';
+import { OfflineIndicator } from './components/OfflineIndicator';
+import { InstallPrompt } from './components/InstallPrompt';
 import type { MeetingSummary } from './types/meeting';
 
 type ViewMode = 'transcript' | 'summary';
@@ -115,38 +117,50 @@ function App() {
 
   if (audioState.hasPermission === false || audioState.hasPermission === null) {
     return (
-      <PermissionScreen
-        onRequestPermission={audioControls.requestPermission}
-        error={audioState.error}
-      />
+      <>
+        <OfflineIndicator />
+        <PermissionScreen
+          onRequestPermission={audioControls.requestPermission}
+          error={audioState.error}
+        />
+      </>
     );
   }
 
   // Show dashboard screen
   if (appScreen === 'dashboard') {
     return (
-      <Dashboard
-        onStartRecording={handleStartRecording}
-        onOpenMeeting={handleOpenMeeting}
-        onOpenSettings={handleOpenSettings}
-      />
+      <>
+        <OfflineIndicator />
+        <InstallPrompt />
+        <Dashboard
+          onStartRecording={handleStartRecording}
+          onOpenMeeting={handleOpenMeeting}
+          onOpenSettings={handleOpenSettings}
+        />
+      </>
     );
   }
 
   // Show detail screen when summary is ready
   if (appScreen === 'detail' && currentSummary) {
     return (
-      <MeetingDetail
-        summary={currentSummary}
-        onClose={handleBackToDashboard}
-        onSummaryUpdate={handleSummaryUpdate}
-      />
+      <>
+        <OfflineIndicator />
+        <MeetingDetail
+          summary={currentSummary}
+          onClose={handleBackToDashboard}
+          onSummaryUpdate={handleSummaryUpdate}
+        />
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
+    <>
+      <OfflineIndicator />
+      <div className="min-h-screen flex flex-col">
+        {/* Header */}
       <header className="glass fixed top-0 left-0 right-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -309,7 +323,8 @@ function App() {
       <footer className="py-6 text-center text-xs text-white/30">
         <p>Powered by Gemini 2.0 Flash</p>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }
 

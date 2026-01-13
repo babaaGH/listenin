@@ -207,15 +207,27 @@ listenin/
   - Real-time audio level monitoring
   - Pause/Resume support
 
-## PWA Features
+## PWA Features (iOS Optimized)
 
-- **Installable**: Add to iOS home screen
-- **Offline Ready**: Service worker caching
-- **iOS Optimized**:
-  - Black translucent status bar
-  - Viewport fit for notch devices
-  - Touch-optimized interactions
-- **Manifest**: Configured for standalone app experience
+- **Installable**: Add to iOS home screen for native app experience
+- **Offline Support**:
+  - App shell cached for offline access
+  - Meetings stored locally (persists without internet)
+  - Offline indicator when network unavailable
+  - Background sync for API requests
+- **iOS Specific**:
+  - Black status bar (blends with OLED design)
+  - Viewport fit for notch/Dynamic Island support
+  - Apple Touch Icons (180x180)
+  - Splash screens for all iPhone sizes
+  - Standalone display mode (hides Safari UI)
+  - Install instructions modal on first visit
+- **Performance Optimizations**:
+  - 60fps animations with requestAnimationFrame
+  - Lazy loading for transcript chunks
+  - Optimized waveform rendering
+  - Will-change CSS hints for smooth animations
+- **Manifest**: Full PWA configuration with categories and purpose-specific icons
 
 ## Browser Compatibility
 

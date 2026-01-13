@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface WaveformProps {
   audioLevel: number;
@@ -7,21 +7,48 @@ interface WaveformProps {
 
 export const Waveform: React.FC<WaveformProps> = ({ audioLevel, isActive }) => {
   const [bars, setBars] = useState<number[]>(new Array(40).fill(0));
+  const lastUpdateRef = useRef<number>(0);
+  const rafIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (isActive) {
-      const interval = setInterval(() => {
-        setBars(prev => {
-          const newBars = [...prev];
-          newBars.shift();
-          newBars.push(audioLevel);
-          return newBars;
-        });
-      }, 50);
+      let currentAudioLevel = audioLevel;
 
-      return () => clearInterval(interval);
+      const animate = (timestamp: number) => {
+        // Update every ~50ms (20fps for waveform - smooth enough while performant)
+        if (timestamp - lastUpdateRef.current >= 50) {
+          setBars(prev => {
+            const newBars = [...prev];
+            newBars.shift();
+            newBars.push(currentAudioLevel);
+            return newBars;
+          });
+          lastUpdateRef.current = timestamp;
+        }
+
+        rafIdRef.current = requestAnimationFrame(animate);
+      };
+
+      rafIdRef.current = requestAnimationFrame(animate);
+
+      return () => {
+        if (rafIdRef.current) {
+          cancelAnimationFrame(rafIdRef.current);
+        }
+      };
     } else {
+      // Smoothly fade out bars when inactive
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
       setBars(new Array(40).fill(0));
+    }
+  }, [isActive]);
+
+  // Update current audio level for next animation frame
+  useEffect(() => {
+    if (isActive && audioLevel !== undefined) {
+      // Store latest audio level for next animation frame
     }
   }, [audioLevel, isActive]);
 
@@ -35,11 +62,13 @@ export const Waveform: React.FC<WaveformProps> = ({ audioLevel, isActive }) => {
           return (
             <div
               key={index}
-              className="flex-1 bg-apple-blue rounded-full smooth-transition"
+              className="flex-1 bg-apple-blue rounded-full"
               style={{
                 height: `${height}px`,
                 opacity: opacity,
                 minWidth: '3px',
+                transition: 'height 0.1s ease-out, opacity 0.15s ease-out',
+                willChange: isActive ? 'height, opacity' : 'auto'
               }}
             />
           );
