@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { storageManager } from '../utils/storage';
+import { ModelTest } from './ModelTest';
 
 interface SettingsProps {
   onClose: () => void;
@@ -10,6 +11,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showExportSuccess, setShowExportSuccess] = useState(false);
+  const [showModelTest, setShowModelTest] = useState(false);
 
   useEffect(() => {
     // Load saved API key (if user wants to use their own)
@@ -126,12 +128,20 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
                   placeholder="Paste your API key here (optional)"
                   className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-apple-blue smooth-transition mb-3"
                 />
-                <button
-                  onClick={handleSaveApiKey}
-                  className="px-4 py-2 bg-apple-blue hover:bg-blue-600 rounded-lg text-white font-medium smooth-transition"
-                >
-                  Save API Key
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleSaveApiKey}
+                    className="px-4 py-2 bg-apple-blue hover:bg-blue-600 rounded-lg text-white font-medium smooth-transition"
+                  >
+                    Save API Key
+                  </button>
+                  <button
+                    onClick={() => setShowModelTest(true)}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white font-medium smooth-transition"
+                  >
+                    Test Models
+                  </button>
+                </div>
               </div>
             </div>
           </section>
@@ -255,6 +265,11 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         {/* Safe area for iPhone notch */}
         <div className="h-safe-bottom sm:hidden" />
       </div>
+
+      {/* Model Test Modal */}
+      {showModelTest && (
+        <ModelTest onClose={() => setShowModelTest(false)} />
+      )}
     </div>
   );
 };
