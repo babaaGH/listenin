@@ -192,30 +192,183 @@ export default async function handler(
 
     // Framework-specific instructions
     const frameworkInstructions: Record<string, string> = {
-      sales: `SALES CALL ANALYSIS:
-- Focus on: objections raised, commitments made, next steps, pain points discussed
-- Action items should highlight follow-ups, proposals, and deadlines
-- Highlight key buying signals or concerns`,
+      sales: `SALES CALL ANALYSIS - Focus on deal progression and buyer engagement:
 
-      'one-on-one': `1:1 MEETING ANALYSIS:
-- Focus on: feedback shared, career goals discussed, personal development
-- Action items should include specific goals and development tasks
-- Highlight key insights about performance or growth areas`,
+EXTRACT SPECIFICALLY:
+1. Budget & Timeline:
+   - Budget discussed (ranges, constraints, approval process)
+   - Timeline for decision and implementation
+   - Budget authority and approval requirements
 
-      standup: `STANDUP ANALYSIS:
-- Focus on: progress updates, blockers, daily goals
-- Action items should be specific and urgent
-- Keep chapters brief and focused on each person's update`,
+2. Objections & Concerns:
+   - Specific objections raised by prospect
+   - Underlying concerns or hesitations
+   - How objections were addressed
+   - Unresolved concerns requiring follow-up
 
-      brainstorm: `BRAINSTORM ANALYSIS:
-- Focus on: creative ideas, solutions proposed, decisions made
-- Action items should include ideas to explore and experiments to run
-- Highlight innovative suggestions and breakthrough moments`,
+3. Competition:
+   - Competitors mentioned by name
+   - Competitive advantages/disadvantages discussed
+   - Incumbent solutions or alternatives being considered
 
-      general: `GENERAL MEETING ANALYSIS:
-- Provide balanced coverage of all discussion topics
-- Action items should include all tasks and responsibilities mentioned
-- Highlight key decisions and important discussions`
+4. Deal Health Signals:
+   - Positive signals: excitement, urgency, engagement level
+   - Risk signals: hesitation, delays, lack of engagement
+   - Champion identification: who is advocating for your solution
+   - Decision-maker involvement and buy-in
+
+5. Next Steps & Commitments:
+   - Specific commitments made by prospect
+   - Agreed-upon next steps with dates
+   - Who will do what by when
+
+CHAPTERS: Structure by call flow (intro → discovery → presentation → objections → next steps)
+
+HIGHLIGHTS: Quote exact objections, commitments, and buying signals with importance based on deal impact
+
+ACTION ITEMS: Focus on follow-up materials, proposal deadlines, decision-maker engagement, objection handling`,
+
+      'one-on-one': `1:1 MEETING ANALYSIS - Focus on personal development and feedback:
+
+EXTRACT SPECIFICALLY:
+1. Career Goals & Aspirations:
+   - Short-term goals (3-6 months)
+   - Long-term career aspirations
+   - Skills they want to develop
+   - Interests and passions discussed
+
+2. Feedback Exchange:
+   - Positive feedback given (specific examples)
+   - Constructive feedback shared
+   - Areas for improvement identified
+   - Strengths acknowledged
+
+3. Personal Challenges:
+   - Work-related challenges or frustrations
+   - Work-life balance concerns
+   - Team dynamics issues
+   - Resource or support gaps
+
+4. Growth Opportunities:
+   - New responsibilities to take on
+   - Projects or initiatives to lead
+   - Learning resources needed
+   - Mentorship or coaching opportunities
+
+5. Support Needs:
+   - Resources required
+   - Manager support requested
+   - Training or tools needed
+   - Team collaboration needs
+
+CHAPTERS: Structure by discussion topics (check-in → feedback → goals → challenges → action planning)
+
+HIGHLIGHTS: Quote specific feedback, goals, and personal insights with importance based on career impact
+
+ACTION ITEMS: Focus on development plans, check-in dates, resource needs, skill-building activities`,
+
+      standup: `STANDUP ANALYSIS - Focus on team progress and blockers:
+
+EXTRACT SPECIFICALLY:
+1. Work Completed (Yesterday/Since Last Update):
+   - Tasks finished with brief descriptions
+   - Milestones reached
+   - Deliverables completed
+
+2. Current Work (Today/Current Sprint):
+   - Tasks in progress
+   - What each person is working on
+   - Expected completion timeline
+
+3. Blockers & Impediments:
+   - Technical blockers (bugs, infrastructure, tooling)
+   - Process blockers (approvals, reviews, decisions)
+   - Dependency blockers (waiting on others)
+   - Resource blockers (access, information, capacity)
+
+4. Dependencies:
+   - Work waiting on other team members
+   - Cross-team dependencies
+   - External dependencies
+
+5. Team Updates & Coordination:
+   - Important announcements
+   - Schedule changes (PTO, meetings)
+   - Help offered or requested
+
+CHAPTERS: Keep brief, structure by person or by theme (completed → in-progress → blockers)
+
+HIGHLIGHTS: Focus on critical blockers, significant progress, and important announcements
+
+ACTION ITEMS: Focus on blockers to resolve, dependencies to unblock, follow-ups needed, help to provide`,
+
+      brainstorm: `BRAINSTORM ANALYSIS - Focus on ideation and creative exploration:
+
+EXTRACT SPECIFICALLY:
+1. Ideas Generated (Group by Theme):
+   - Core ideas discussed with brief descriptions
+   - Variations and iterations explored
+   - Related concepts that emerged
+   - Theme/category for each idea cluster
+
+2. Divergent Thinking Phase:
+   - Wild or unconventional ideas
+   - "Yes, and..." building on ideas
+   - Different perspectives shared
+   - Assumptions challenged
+
+3. Convergent Decisions:
+   - Ideas selected for further exploration
+   - Ideas combined or merged
+   - Ideas rejected with reasoning
+   - Criteria used for evaluation
+
+4. Creative Insights:
+   - Breakthrough moments or "aha!" insights
+   - Novel connections made
+   - Reframing of problems
+   - Innovative approaches discovered
+
+5. Constraints & Considerations:
+   - Technical feasibility concerns
+   - Resource limitations discussed
+   - Timeline constraints
+   - Strategic alignment considerations
+
+CHAPTERS: Structure by idea themes or brainstorm phases (diverge → explore → converge → decide)
+
+HIGHLIGHTS: Quote innovative ideas, breakthrough insights, and key decisions with importance based on potential impact
+
+ACTION ITEMS: Focus on ideas to explore, prototypes to build, research needed, experiments to run, validation steps`,
+
+      general: `GENERAL MEETING ANALYSIS - Standard comprehensive coverage:
+
+EXTRACT COMPREHENSIVELY:
+1. Key Discussion Topics:
+   - Main subjects covered
+   - Important points raised
+   - Questions asked and answered
+
+2. Decisions Made:
+   - Explicit decisions with rationale
+   - Who made the decision
+   - Impact of decisions
+
+3. Action Items & Responsibilities:
+   - Tasks assigned with owners
+   - Deadlines and deliverables
+   - Dependencies identified
+
+4. Important Information:
+   - Updates shared
+   - Announcements made
+   - Data or metrics discussed
+
+CHAPTERS: Structure by major discussion topics in chronological order
+
+HIGHLIGHTS: Focus on key decisions, important information, and significant discussion points
+
+ACTION ITEMS: Include all tasks, responsibilities, and follow-ups mentioned with appropriate priorities`
     };
 
     const frameworkInstruction = frameworkInstructions[framework] || frameworkInstructions.general;

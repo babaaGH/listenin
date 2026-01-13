@@ -72,11 +72,20 @@ A premium iOS-style meeting intelligence PWA built with React 19, TypeScript, an
   - Highlights count badge
   - Swipe-to-delete gesture (mobile)
 - ✅ **Framework Selector** - Choose meeting type before recording:
-  - **Sales Call**: Focus on objections, commitments, pain points
-  - **1:1 Meeting**: Focus on feedback, goals, personal development
-  - **Standup**: Focus on progress, blockers, daily goals
-  - **Brainstorm**: Focus on creative ideas, decisions, solutions
-  - **General**: Standard balanced meeting analysis
+  - **Sales Call** 💼: Extracts budget, objections, competitors, deal health, champion identification
+    - Action items: Follow-up materials, proposal deadlines, decision-maker engagement
+  - **1:1 Meeting** 🤝: Extracts career goals, feedback, challenges, growth opportunities
+    - Action items: Development plans, check-in dates, resource needs
+  - **Standup** ⚡: Extracts work completed, blockers, dependencies, team updates
+    - Action items: Blockers to resolve, dependencies to unblock, follow-ups
+  - **Brainstorm** 💡: Extracts ideas by theme, divergent thinking, convergent decisions
+    - Action items: Ideas to explore, prototypes to build, research needed
+  - **General** 📝: Standard balanced comprehensive meeting analysis
+- ✅ **Framework-Specific Analysis**:
+  - Specialized AI prompts for each meeting type
+  - Customized extraction criteria and focus areas
+  - Framework badge displayed on cards and detail view
+  - Framework metadata stored with each meeting
 - ✅ **Floating Action Button** - Always-accessible record button with pulse animation
 - ✅ **Empty State** - Beautiful onboarding with feature highlights
 - ✅ **iOS-Style Animations**:

@@ -19,8 +19,11 @@ export interface ActionItem {
   completed: boolean;
 }
 
+export type MeetingFramework = 'sales' | 'one-on-one' | 'standup' | 'brainstorm' | 'general';
+
 export interface MeetingSummary {
   id: string;
+  framework: MeetingFramework;
   overview: string;
   chapters: MeetingChapter[];
   highlights: MeetingHighlight[];

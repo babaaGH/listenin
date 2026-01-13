@@ -69,6 +69,7 @@ export const useGeminiSummary = () => {
       // Create full meeting summary with metadata
       const meetingSummary: MeetingSummary = {
         id: `meeting_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        framework: framework as any,
         overview: data.summary.overview,
         chapters: data.summary.chapters || [],
         highlights: data.summary.highlights || [],

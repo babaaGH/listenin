@@ -15,6 +15,19 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({ meeting, onOpen, onDel
     ? meeting.overview.substring(0, 50) + '...'
     : meeting.overview;
 
+  const getFrameworkInfo = (framework: string) => {
+    const frameworks: Record<string, { icon: string; label: string; color: string }> = {
+      sales: { icon: '💼', label: 'Sales Call', color: 'bg-green-500/20 text-green-400' },
+      'one-on-one': { icon: '🤝', label: '1:1', color: 'bg-purple-500/20 text-purple-400' },
+      standup: { icon: '⚡', label: 'Standup', color: 'bg-orange-500/20 text-orange-400' },
+      brainstorm: { icon: '💡', label: 'Brainstorm', color: 'bg-pink-500/20 text-pink-400' },
+      general: { icon: '📝', label: 'General', color: 'bg-blue-500/20 text-blue-400' },
+    };
+    return frameworks[framework] || frameworks.general;
+  };
+
+  const frameworkInfo = getFrameworkInfo(meeting.framework || 'general');
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -74,8 +87,14 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({ meeting, onOpen, onDel
         <div className="flex items-start justify-between gap-4">
           {/* Main Content */}
           <div className="flex-1 min-w-0">
-            {/* Title */}
-            <h3 className="text-white font-semibold mb-2 truncate">{title}</h3>
+            {/* Title with Framework Badge */}
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-white font-semibold truncate flex-1">{title}</h3>
+              <span className={`flex-shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${frameworkInfo.color}`}>
+                <span>{frameworkInfo.icon}</span>
+                <span className="hidden sm:inline">{frameworkInfo.label}</span>
+              </span>
+            </div>
 
             {/* Meta Info */}
             <div className="flex items-center gap-3 text-xs text-white/60 mb-3">
