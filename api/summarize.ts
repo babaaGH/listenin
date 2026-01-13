@@ -183,7 +183,7 @@ export default async function handler(
     // Initialize Gemini Pro
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-1.5-flash', // Higher free tier quota (1500 req/day vs 50/day)
       generationConfig: {
         responseMimeType: 'application/json',
         responseSchema: summarySchema as any,
