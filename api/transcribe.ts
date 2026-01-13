@@ -131,22 +131,36 @@ export default async function handler(
 
   } catch (error: any) {
     console.error('Transcription error:', error);
+    console.error('Error message:', error.message);
+    console.error('Error details:', JSON.stringify(error, null, 2));
 
     // Handle specific error types
-    if (error.message?.includes('API_KEY')) {
+    if (error.message?.includes('API_KEY') || error.message?.includes('API key')) {
       return res.status(500).json({
-        error: 'API key configuration error'
+        error: 'API key configuration error',
+        details: error.message
       });
     }
 
-    if (error.message?.includes('quota')) {
+    if (error.message?.includes('quota') || error.message?.includes('RESOURCE_EXHAUSTED')) {
       return res.status(429).json({
-        error: 'API quota exceeded. Please try again later.'
+        error: 'API quota exceeded. Please try again later.',
+        details: error.message
       });
     }
 
+    if (error.message?.includes('permission') || error.message?.includes('PERMISSION_DENIED')) {
+      return res.status(403).json({
+        error: 'API key does not have permission. Enable Generative Language API.',
+        details: error.message
+      });
+    }
+
+    // Return more detailed error for debugging
     return res.status(500).json({
-      error: 'Transcription failed. Please try again.'
+      error: 'Transcription failed. Please try again.',
+      details: error.message || 'Unknown error',
+      type: error.constructor.name
     });
   }
 }

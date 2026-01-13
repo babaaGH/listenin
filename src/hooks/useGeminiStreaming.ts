@@ -49,7 +49,10 @@ export const useGeminiStreaming = (): [GeminiStreamingState, GeminiStreamingCont
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || 'Failed to connect to transcription service');
+        const errorMsg = data.details
+          ? `${data.error}: ${data.details}`
+          : (data.error || 'Failed to connect to transcription service');
+        throw new Error(errorMsg);
       }
 
       startTimeRef.current = Date.now();
@@ -67,6 +70,10 @@ export const useGeminiStreaming = (): [GeminiStreamingState, GeminiStreamingCont
       if (err instanceof Error) {
         if (err.message.includes('API key')) {
           errorMessage = 'Server configuration error: API key not configured. Please contact the administrator.';
+        } else if (err.message.includes('permission') || err.message.includes('PERMISSION_DENIED')) {
+          errorMessage = 'API key missing permissions. Enable "Generative Language API" in Google Cloud Console.';
+        } else if (err.message.includes('quota') || err.message.includes('RESOURCE_EXHAUSTED')) {
+          errorMessage = 'API quota exceeded. Please try again later or use a different API key.';
         } else {
           errorMessage = err.message;
         }
@@ -123,7 +130,10 @@ export const useGeminiStreaming = (): [GeminiStreamingState, GeminiStreamingCont
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || 'Transcription failed');
+        const errorMsg = data.details
+          ? `${data.error}: ${data.details}`
+          : (data.error || 'Transcription failed');
+        throw new Error(errorMsg);
       }
 
       const data = await response.json();
