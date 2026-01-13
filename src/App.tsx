@@ -98,11 +98,6 @@ function App() {
     setAppScreen('detail');
   };
 
-  const handleOpenSettings = () => {
-    // Placeholder for settings screen
-    alert('Settings coming soon!');
-  };
-
   const handleSummaryUpdate = (updatedSummary: MeetingSummary) => {
     setCurrentSummary(updatedSummary);
   };
@@ -136,7 +131,6 @@ function App() {
         <Dashboard
           onStartRecording={handleStartRecording}
           onOpenMeeting={handleOpenMeeting}
-          onOpenSettings={handleOpenSettings}
         />
       </>
     );

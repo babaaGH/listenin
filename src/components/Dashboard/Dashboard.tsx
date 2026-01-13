@@ -1,30 +1,34 @@
 import { useState, useEffect } from 'react';
 import type { MeetingSummary } from '../../types/meeting';
 import { storageManager } from '../../utils/storage';
+import { initializeDemoMeetings } from '../../utils/demoMeetings';
 import { MeetingCard } from './MeetingCard';
 import { SearchBar } from './SearchBar';
 import { EmptyState } from './EmptyState';
 import { FloatingActionButton } from './FloatingActionButton';
 import { FrameworkSelector } from './FrameworkSelector';
+import { Settings } from '../Settings';
 
 interface DashboardProps {
   onStartRecording: (framework: string) => void;
   onOpenMeeting: (summary: MeetingSummary) => void;
-  onOpenSettings: () => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
   onStartRecording,
   onOpenMeeting,
-  onOpenSettings,
 }) => {
   const [meetings, setMeetings] = useState<MeetingSummary[]>([]);
   const [filteredMeetings, setFilteredMeetings] = useState<MeetingSummary[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFrameworkSelector, setShowFrameworkSelector] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Load meetings from localStorage
   useEffect(() => {
+    // Initialize demo meetings if first time
+    initializeDemoMeetings();
+
     const loadedMeetings = storageManager.getAllSummaries();
     setMeetings(loadedMeetings);
     setFilteredMeetings(loadedMeetings);
@@ -74,7 +78,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-semibold">ListenIn</h1>
             <button
-              onClick={onOpenSettings}
+              onClick={() => setShowSettings(true)}
               className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 smooth-transition flex items-center justify-center"
               aria-label="Settings"
             >
@@ -131,6 +135,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
           onSelect={handleFrameworkSelected}
           onClose={() => setShowFrameworkSelector(false)}
         />
+      )}
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <Settings onClose={() => setShowSettings(false)} />
       )}
     </div>
   );
