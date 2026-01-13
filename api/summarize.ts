@@ -186,7 +186,7 @@ export default async function handler(
       model: 'gemini-2.0-flash-exp',
       generationConfig: {
         responseMimeType: 'application/json',
-        responseSchema: summarySchema,
+        responseSchema: summarySchema as any,
       }
     });
 
