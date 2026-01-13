@@ -168,7 +168,7 @@ export default async function handler(
       });
     }
 
-    const { transcript, duration } = req.body;
+    const { transcript, duration, framework = 'general' } = req.body;
 
     if (!transcript || typeof transcript !== 'string') {
       return res.status(400).json({ error: 'Invalid transcript data' });
@@ -190,12 +190,44 @@ export default async function handler(
       }
     });
 
+    // Framework-specific instructions
+    const frameworkInstructions: Record<string, string> = {
+      sales: `SALES CALL ANALYSIS:
+- Focus on: objections raised, commitments made, next steps, pain points discussed
+- Action items should highlight follow-ups, proposals, and deadlines
+- Highlight key buying signals or concerns`,
+
+      'one-on-one': `1:1 MEETING ANALYSIS:
+- Focus on: feedback shared, career goals discussed, personal development
+- Action items should include specific goals and development tasks
+- Highlight key insights about performance or growth areas`,
+
+      standup: `STANDUP ANALYSIS:
+- Focus on: progress updates, blockers, daily goals
+- Action items should be specific and urgent
+- Keep chapters brief and focused on each person's update`,
+
+      brainstorm: `BRAINSTORM ANALYSIS:
+- Focus on: creative ideas, solutions proposed, decisions made
+- Action items should include ideas to explore and experiments to run
+- Highlight innovative suggestions and breakthrough moments`,
+
+      general: `GENERAL MEETING ANALYSIS:
+- Provide balanced coverage of all discussion topics
+- Action items should include all tasks and responsibilities mentioned
+- Highlight key decisions and important discussions`
+    };
+
+    const frameworkInstruction = frameworkInstructions[framework] || frameworkInstructions.general;
+
     const prompt = `Analyze this meeting transcript and generate a comprehensive structured summary.
 
 TRANSCRIPT:
 ${transcript}
 
 DURATION: ${duration || 'Unknown'}
+
+${frameworkInstruction}
 
 INSTRUCTIONS:
 1. Provide a clear 2-3 sentence executive overview

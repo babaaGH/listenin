@@ -12,7 +12,8 @@ export const useGeminiSummary = () => {
 
   const generateSummary = useCallback(async (
     transcript: string,
-    duration: number
+    duration: number,
+    framework: string = 'general'
   ): Promise<MeetingSummary | null> => {
     if (!transcript || transcript.length < 50) {
       setState(prev => ({
@@ -45,7 +46,8 @@ export const useGeminiSummary = () => {
         },
         body: JSON.stringify({
           transcript,
-          duration: durationStr
+          duration: durationStr,
+          framework
         }),
       });
 

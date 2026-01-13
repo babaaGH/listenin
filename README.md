@@ -37,7 +37,7 @@ A premium iOS-style meeting intelligence PWA built with React 19, TypeScript, an
   - Graceful error handling with helpful messages
   - Automatic API setup instructions
 
-### Phase 3 (Completed) 🆕
+### Phase 3 (Completed)
 - ✅ **AI Meeting Summaries** - Structured analysis with Gemini 2.0 Flash
 - ✅ **Auto-Generation** - Triggers within 30 seconds after recording ends
 - ✅ **Structured Output** (JSON Schema):
@@ -59,6 +59,31 @@ A premium iOS-style meeting intelligence PWA built with React 19, TypeScript, an
   - Progress indicator during generation
   - Swipe-to-delete action items (mobile)
 - ✅ **LocalStorage** - Saves last 50 summaries for offline access
+
+### Phase 4 (Completed) 🆕
+- ✅ **Main Dashboard** - Full meeting library interface
+- ✅ **Search & Filter** - Search meetings by title, overview, or participants
+- ✅ **Meeting Cards** with:
+  - Title (first 50 chars of overview)
+  - Date/time with smart formatting (Today, Yesterday, X days ago)
+  - Duration badge
+  - Participant count
+  - Action items count badge
+  - Highlights count badge
+  - Swipe-to-delete gesture (mobile)
+- ✅ **Framework Selector** - Choose meeting type before recording:
+  - **Sales Call**: Focus on objections, commitments, pain points
+  - **1:1 Meeting**: Focus on feedback, goals, personal development
+  - **Standup**: Focus on progress, blockers, daily goals
+  - **Brainstorm**: Focus on creative ideas, decisions, solutions
+  - **General**: Standard balanced meeting analysis
+- ✅ **Floating Action Button** - Always-accessible record button with pulse animation
+- ✅ **Empty State** - Beautiful onboarding with feature highlights
+- ✅ **iOS-Style Animations**:
+  - Slide-up modal animations
+  - Haptic feedback simulation (vibration)
+  - Smooth card interactions
+  - Pulse and fade animations
 
 ## Design System
 
@@ -193,16 +218,16 @@ listenin/
 
 **Note**: Microphone access requires HTTPS or localhost.
 
-## Upcoming Features (Phase 4)
+## Upcoming Features (Phase 5)
 
 - 🔄 Export Options - Download summaries as PDF, text, JSON
-- 🔄 Recording History View - Browse all past summaries
 - 🔄 Speaker Diarization - Identify and label different speakers
 - 🔄 Multi-language Support - Transcribe in multiple languages
 - 🔄 Custom AI Prompts - User-defined analysis questions
 - 🔄 Email Integration - Send summaries via email
 - 🔄 Calendar Integration - Create events from action items
-- 🔄 Search & Filter - Find summaries by keyword, date, participants
+- 🔄 Settings Screen - Customize app behavior and preferences
+- 🔄 Dark/Light Theme Toggle - User preference for color scheme
 
 ## Development
 
@@ -236,23 +261,31 @@ listenin/
 ## Usage
 
 1. **Grant Microphone Permission**: On first launch, grant microphone access
-2. **Check Gemini Connection**: Green indicator shows AI is ready for transcription
-3. **Start Recording**: Click "Start Recording" to begin capturing audio
-4. **Watch Real-Time Transcription**: See your words appear live in the "Live Transcript" tab
-5. **Monitor Recording**: Watch the pulsing orb and waveform for visual feedback
-6. **Pause/Resume**: Control your recording with pause and resume buttons
-7. **Review Transcript**: Scroll through with timestamp markers every 30 seconds
-8. **Finish Recording**: Click "Finish" to stop recording
-9. **AI Summary Generation** (New! ✨):
-   - Automatically generates structured summary within 30 seconds
-   - Transitions to full-screen Meeting Detail view
+2. **Browse Dashboard**: View all your past meetings on the main screen
+3. **Search Meetings**: Use the search bar to filter by title, overview, or participants
+4. **Start New Recording**:
+   - Tap the floating blue microphone button (bottom-right)
+   - Choose a meeting framework (Sales Call, 1:1, Standup, Brainstorm, or General)
+   - Recording starts immediately with optimized AI analysis
+5. **During Recording**:
+   - Watch real-time transcription appear live
+   - Monitor the pulsing orb and waveform for visual feedback
+   - Pause/Resume with controls
+   - Review transcript with timestamp markers every 30 seconds
+6. **Finish Recording**: Click "Finish" to stop and generate AI summary
+7. **AI Summary Generation** (30 seconds):
+   - Framework-specific analysis (e.g., Sales Calls focus on objections and commitments)
+   - Automatically transitions to full-screen Meeting Detail view
    - All summaries saved to localStorage
-10. **Explore Meeting Detail** (New! ✨):
+8. **Explore Meeting Detail** (4 Interactive Tabs):
    - **Summary Tab**: View overview, participants, and chapter timeline
    - **Highlights Tab**: Browse color-coded key moments (tap to expand)
    - **Action Items Tab**: Check off tasks, see priority levels, swipe to delete
    - **Intel Chat Tab**: Ask questions about the meeting with AI assistance
-11. **Back to Recording**: Click the back button to start a new recording
+9. **Manage Meetings**:
+   - Tap any meeting card to view its detail
+   - Swipe left on cards to delete (mobile)
+   - Use the back button to return to dashboard
 
 ## Contributing
 

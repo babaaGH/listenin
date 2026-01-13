@@ -12,10 +12,11 @@ import { SummaryDisplay } from './components/SummaryDisplay';
 import { SummaryGenerating } from './components/SummaryGenerating';
 import { ConnectionStatus } from './components/ConnectionStatus';
 import { MeetingDetail } from './components/MeetingDetail/MeetingDetail';
+import { Dashboard } from './components/Dashboard/Dashboard';
 import type { MeetingSummary } from './types/meeting';
 
 type ViewMode = 'transcript' | 'summary';
-type AppScreen = 'recording' | 'detail';
+type AppScreen = 'dashboard' | 'recording' | 'detail';
 
 function App() {
   const [audioState, audioControls] = useAudioRecorder();
@@ -24,8 +25,9 @@ function App() {
   const [savedAudioBlob, setSavedAudioBlob] = useState<Blob | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('transcript');
-  const [appScreen, setAppScreen] = useState<AppScreen>('recording');
+  const [appScreen, setAppScreen] = useState<AppScreen>('dashboard');
   const [currentSummary, setCurrentSummary] = useState<MeetingSummary | null>(null);
+  const [selectedFramework, setSelectedFramework] = useState<string>('general');
 
   // Connect to Gemini on mount
   useEffect(() => {
@@ -40,7 +42,8 @@ function App() {
     }
   }, [geminiState.isConnected, audioState.isPaused, geminiControls]);
 
-  const handleStart = async () => {
+  const handleStartRecording = async (framework: string) => {
+    setSelectedFramework(framework);
     geminiControls.clearTranscript();
     summaryState.resetState();
     setViewMode('transcript');
@@ -48,6 +51,10 @@ function App() {
     setCurrentSummary(null);
     await audioControls.startRecording(handleAudioData);
     setShowSuccess(false);
+  };
+
+  const handleStart = async () => {
+    await audioControls.startRecording(handleAudioData);
   };
 
   const handleFinish = async () => {
@@ -61,7 +68,8 @@ function App() {
         setViewMode('summary');
         await summaryState.generateSummary(
           geminiState.fullTranscript,
-          audioState.duration
+          audioState.duration,
+          selectedFramework
         );
 
         // Switch to detail screen when summary is ready
@@ -77,9 +85,20 @@ function App() {
     }
   };
 
-  const handleBackToRecording = () => {
-    setAppScreen('recording');
+  const handleBackToDashboard = () => {
+    setAppScreen('dashboard');
     setViewMode('transcript');
+    setCurrentSummary(null);
+  };
+
+  const handleOpenMeeting = (summary: MeetingSummary) => {
+    setCurrentSummary(summary);
+    setAppScreen('detail');
+  };
+
+  const handleOpenSettings = () => {
+    // Placeholder for settings screen
+    alert('Settings coming soon!');
   };
 
   const handleSummaryUpdate = (updatedSummary: MeetingSummary) => {
@@ -103,12 +122,23 @@ function App() {
     );
   }
 
+  // Show dashboard screen
+  if (appScreen === 'dashboard') {
+    return (
+      <Dashboard
+        onStartRecording={handleStartRecording}
+        onOpenMeeting={handleOpenMeeting}
+        onOpenSettings={handleOpenSettings}
+      />
+    );
+  }
+
   // Show detail screen when summary is ready
   if (appScreen === 'detail' && currentSummary) {
     return (
       <MeetingDetail
         summary={currentSummary}
-        onClose={handleBackToRecording}
+        onClose={handleBackToDashboard}
         onSummaryUpdate={handleSummaryUpdate}
       />
     );
