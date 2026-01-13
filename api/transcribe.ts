@@ -96,7 +96,7 @@ export default async function handler(
     // Initialize Gemini
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash', // Higher free tier quota (1500 req/day vs 50/day)
+      model: 'gemini-1.5-flash-latest', // Use -latest suffix for stable version
     });
 
     const prompt = isFirst
