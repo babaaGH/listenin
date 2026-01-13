@@ -183,7 +183,7 @@ export default async function handler(
     // Initialize Gemini Pro
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash-latest', // Use -latest suffix for stable version
+      model: 'gemini-1.5-flash-002', // Using versioned model name for stability
       generationConfig: {
         responseMimeType: 'application/json',
         responseSchema: summarySchema as any,
