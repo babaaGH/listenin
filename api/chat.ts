@@ -94,7 +94,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Initialize Gemini
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash-002', // Using versioned model name for stability
+      model: 'gemini-2.5-flash', // Using Gemini 2.5 Flash (confirmed available)
     });
 
     // Create context-aware prompt
