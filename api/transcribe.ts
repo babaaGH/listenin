@@ -96,7 +96,7 @@ export default async function handler(
     // Initialize Gemini
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash', // Using Gemini 2.5 Flash (confirmed available)
+      model: 'gemini-2.5-flash-native-audio-dialog', // UNLIMITED rate limits for Live API audio
     });
 
     const prompt = isFirst
